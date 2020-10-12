@@ -8,8 +8,9 @@
 - 1 X Double BTS7960 43A High power motor driver module.
 
 - 1 X L298 DC motor driver module
-. Upgrades
-To come:
+
+
+Upgrades To come:
  - 1 X Webcam Wide angle 5 MP
 
 # Install dependencies
