@@ -29,7 +29,7 @@ Uses BCM pin values by default. BOARD pin values are supported, by changing GPIO
 
 
 # Contributing
-Contributions to hcsr04sensor are welcome. 
+Contributions to Rapberry-Pi-Self-driving-RC-car are always welcome. 
 
 
 # Setup
