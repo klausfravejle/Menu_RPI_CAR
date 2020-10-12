@@ -1,15 +1,17 @@
 # Menu_RPI_CAR
+#Setup
 You need to uncomment this line, as i was writing the program on a windows machine.
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 
 You need to install the following modules.
 opencv 2 (cv2)
 pillow (PIL)
 Comment this line out, because of windows programming
-# Disable this on Raspberry
+
+Disable this on Raspberry
 import GPIO_TEST as GPIO
 
-
+# GPIO PINS
 https://www.google.com/url?sa=i&url=https%3A%2F%2Fdocs.microsoft.com%2Fen-us%2Fwindows%2Fiot-core%2Flearn-about-hardware%2Fpinmappings%2Fpinmappingsrpi&psig=AOvVaw1jc-PY9cHE5bM75SeY_a4N&ust=1602577275042000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOjYitzPruwCFQAAAAAdAAAAABAJ
 TRIG + TRIG1 = Goes to the HC-SR04 Trigger.
 TRIG = 4  # pin 7
