@@ -34,7 +34,9 @@ Opencv 2 Install
 
 Pillow Install
 - sudo apt install libwebp6 libtiff5 libjbig0 liblcms2-2 libwebpmux3 libopenjp2-7 libzstd1 libwebpdemux2
-
+- python3 -m pip install --upgrade pip
+- python3 -m pip install --upgrade Pillow
+ 
 # Description
 Controlling RC car using Raspberry PI, and 2 HC-SR04 Ultrasonic Sound Sensor. 
 
