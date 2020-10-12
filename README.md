@@ -6,7 +6,7 @@ import RPi.GPIO as GPIO - You need to uncomment this line, as i was writing the 
 You need to install the following modules.
 opencv 2 (cv2)
 pillow (PIL)
-Comment this line out, because of windows programming
+
 
 import GPIO_TEST as GPIO - Comment out this on Raspberry
 
