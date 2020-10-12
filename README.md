@@ -16,11 +16,16 @@ import GPIO_TEST as GPIO - Comment out this on Raspberry
 TRIG + TRIG1 = Goes to the HC-SR04 Trigger.
 TRIG = 4  # pin 7
 TRIG1 = 27  # pin 13
+
 ECHO + ECHO1 = Goes to the Echo pins on the HC-SR04.
 ECHO = 17  # pin 11
 ECHO1 = 22  # pin 15 
+
+
 led = Goes to lights for the RC car.
 led = 18  # pin 12
+
+
 The rest goes to the motor controller, selfexplained.
 gpio_right = 5  # pin 29
 gpio_back = 6  # pin 31
