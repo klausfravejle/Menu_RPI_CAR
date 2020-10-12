@@ -6,13 +6,13 @@ import random
 import time
 import tkinter as tk
 from threading import Thread
+
 import cv2
 from PIL import Image, ImageTk
 
 # Disable this on Raspberry
 import GPIO_TEST as GPIO
 
-# import menu_rpi_support
 
 # ------------------------GPIO Mode ----------------------------
 # choose BCM or BOARD
