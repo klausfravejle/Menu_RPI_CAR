@@ -1,4 +1,34 @@
-# Menu_RPI_CAR
+# The setup
+2 X HC-SR04 Ultrasonic Sensor on Raspberry Pi
+1 X Raspberry PI 3B
+1 X USB webcam
+1 X Double BTS7960 43A High power motor driver module.
+1 X L298 DC motor driver module
+# Upgrades
+#1 X Webcam Wide angle 5 MP
+
+
+Instructions assume that you are using Raspbian Linux.
+
+
+# Install dependencies
+Python3 Install
+sudo apt-get install python3-pip
+
+sudo apt-get install python-pip
+
+# Description
+Controlling RC car using Raspberry PI, and 2 HC-SR04 Ultrasonic Sound Sensor. 
+
+Returns an distance by using the median reading of 5 readings, if the distance is smaller that 15 cm, it stops and goes back, selecting a new route (left / right)
+
+Uses BCM pin values by default. BOARD pin values are supported, by changing GPIO.setmode(GPIO.BCM) to GPIO.setmode(GPIO.BOARD), remember to setup the new PINS.
+
+
+# Contributing
+Contributions to hcsr04sensor are welcome. 
+
+
 # Setup
 import RPi.GPIO as GPIO - You need to uncomment this line, as i was writing the program on a windows machine.
 
