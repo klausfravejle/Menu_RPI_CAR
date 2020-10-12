@@ -18,8 +18,22 @@ Instructions assume that you are using Raspbian Linux.
 
 Python3 Install
 
-sudo apt-get install python3-pip
-sudo apt-get install python-pip
+- sudo apt-get install python3-pip
+- sudo apt-get install python-pip
+
+Opencv 2 Install
+- sudo pip3 install numpy
+- sudo pip3 install opencv-python 
+- sudo apt-get install libcblas-dev
+- sudo apt-get install libhdf5-dev
+- sudo apt-get install libhdf5-serial-dev
+- sudo apt-get install libatlas-base-dev
+- sudo apt-get install libjasper-dev 
+- sudo apt-get install libqtgui4 
+- sudo apt-get install libqt4-test
+
+Pillow Install
+- sudo apt install libwebp6 libtiff5 libjbig0 liblcms2-2 libwebpmux3 libopenjp2-7 libzstd1 libwebpdemux2
 
 # Description
 Controlling RC car using Raspberry PI, and 2 HC-SR04 Ultrasonic Sound Sensor. 
