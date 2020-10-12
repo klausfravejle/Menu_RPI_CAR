@@ -45,6 +45,7 @@ def vp_start_gui():
     # '''Starting point when module is the main routine.'''
     global val, w, root
     root = tk.Tk()
+    global top
     top = Toplevel1(root)
     init(root, top)
     root.mainloop()
@@ -173,18 +174,27 @@ class Toplevel1:
         root.bind('s', back)
 
         # ----------------------Auto button-----------------------
-        self.auto_button = tk.Button(top)
-        self.auto_button.place(relx=0.067, rely=0.667, height=42, width=54)
-        self.auto_button.configure(activebackground="#ececec")
-        self.auto_button.configure(activeforeground="#000000")
-        self.auto_button.configure(background="#d9d9d9")
-        self.auto_button.configure(command=automode)
-        self.auto_button.configure(disabledforeground="#a3a3a3")
-        self.auto_button.configure(foreground="#000000")
-        self.auto_button.configure(highlightbackground="#d9d9d9")
-        self.auto_button.configure(highlightcolor="black")
-        self.auto_button.configure(pady="0")
-        self.auto_button.configure(text="Auto")
+        global text_for_auto_button
+        text_for_auto_button = ""
+        global auto_button
+        def auto_button():
+            if suitauto is True:
+                text_for_auto_button = "Auto ON"
+            else:
+                text_for_auto_button = "Auto OFF"
+            self.auto_button = tk.Button(top)
+            self.auto_button.place(relx=0.067, rely=0.667, height=42, width=74)
+            self.auto_button.configure(activebackground="#ececec")
+            self.auto_button.configure(activeforeground="#000000")
+            self.auto_button.configure(background="#d9d9d9")
+            self.auto_button.configure(command=automode)
+            self.auto_button.configure(disabledforeground="#a3a3a3")
+            self.auto_button.configure(foreground="#000000")
+            self.auto_button.configure(highlightbackground="#d9d9d9")
+            self.auto_button.configure(highlightcolor="black")
+            self.auto_button.configure(pady="0")
+            self.auto_button.configure(text=text_for_auto_button)
+        auto_button()
 
 
 # ----------------------Init GPIO-----------------------
@@ -260,6 +270,10 @@ def stop():
 
 def automode():
     if __name__ == '__main__':
+#        destroy_toplevel1()
+#        create_toplevel1()
+        auto_button()
+
         t1 = Thread(target=automodeon)
         t1.setDaemon(True)
         t1.start()
@@ -275,6 +289,7 @@ suitauto = True
 
 
 def automodeon():
+
     global suitauto
     suitauto = flip(suitauto)
 

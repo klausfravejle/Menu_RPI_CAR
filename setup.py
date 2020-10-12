@@ -6,7 +6,7 @@ setup(
     packages=[''],
     url='',
     license='',
-    author='Klaus',
+    author='Klaus Holm',
     author_email='klausfravejle@gmail.com',
     description='Self driving RPI RC car with webcam'
 )
