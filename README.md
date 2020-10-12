@@ -1,20 +1,23 @@
 # The setup
-2 X HC-SR04 Ultrasonic Sensor on Raspberry Pi
-1 X Raspberry PI 3B
-1 X USB webcam
-1 X Double BTS7960 43A High power motor driver module.
-1 X L298 DC motor driver module
-# Upgrades
-#1 X Webcam Wide angle 5 MP
+- 2 X HC-SR04 Ultrasonic Sensor on Raspberry Pi
 
+- 1 X Raspberry PI 3B
 
-Instructions assume that you are using Raspbian Linux.
+- 1 X USB webcam
 
+- 1 X Double BTS7960 43A High power motor driver module.
+
+- 1 X L298 DC motor driver module
+. Upgrades
+To come:
+ - 1 X Webcam Wide angle 5 MP
 
 # Install dependencies
-Python3 Install
-sudo apt-get install python3-pip
+Instructions assume that you are using Raspbian Linux.
 
+Python3 Install
+
+sudo apt-get install python3-pip
 sudo apt-get install python-pip
 
 # Description
