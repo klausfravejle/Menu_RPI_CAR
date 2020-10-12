@@ -1,5 +1,5 @@
 # Menu_RPI_CAR
-#Setup
+# Setup
 You need to uncomment this line, as i was writing the program on a windows machine.
 import RPi.GPIO as GPIO
 
