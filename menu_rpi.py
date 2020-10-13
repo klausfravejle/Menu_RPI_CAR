@@ -1,17 +1,11 @@
 #! /usr/bin/env python
-# Enable this on Raspberry
-# import RPi.GPIO as GPIO
-
+import RPi.GPIO as GPIO
 import random
 import time
 import tkinter as tk
 from threading import Thread
-
 import cv2
 from PIL import Image, ImageTk
-
-# Disable this on Raspberry
-import GPIO_TEST as GPIO
 
 
 # ------------------------GPIO Mode ----------------------------
@@ -31,6 +25,8 @@ gpio_back = 6  # pin 31
 gpio_left = 13  # pin 33
 gpio_forward = 26  # pin 37
 
+
+sleeprun=0.2
 # Start ------------------------cv2 webcam settings ----------------------------
 width, height = 600, 450
 cap = cv2.VideoCapture(0)
@@ -40,13 +36,12 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
 # End --------------------------cv2 webcam settings ----------------------------
 
-
 def vp_start_gui():
-    # '''Starting point when module is the main routine.'''
+
     global val, w, root
     root = tk.Tk()
     global top
-    top = Toplevel1(root)
+    top = Toplvl1(root)
     init(root, top)
     root.mainloop()
     w = None
@@ -65,7 +60,7 @@ def create_toplevel1(rt, *args, **kwargs):
     # rt = root
     root = rt
     w = tk.Toplevel(root)
-    top = Toplevel1(w)
+    top = Toplvl1(w)
     init(w, top, *args, **kwargs)
     return (w, top)
 
@@ -76,22 +71,10 @@ def destroy_toplevel1():
     w = None
 
 
-class Toplevel1:
+class Toplvl1:
     def __init__(self, top=None):
-        # This class configures and populates the toplevel window.
-        #   top is the toplevel containing window.'''
-        _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
-        _fgcolor = '#000000'  # X11 color: 'black'
-        _compcolor = '#d9d9d9'  # X11 color: 'gray85'
-        _ana1color = '#d9d9d9'  # X11 color: 'gray85'
-        _ana2color = '#ececec'  # Closest X11 color: 'gray92'
-
-        top.geometry("600x450+650+150")
-        top.minsize(176, 1)
-        top.maxsize(1924, 1050)
-        top.resizable(1, 1)
         top.title("Raspberry RC auto car")
-        top.configure(background="#d9d9d9")
+
 
         def webset():
             global lmain
@@ -106,11 +89,7 @@ class Toplevel1:
             lmain.configure(image=imgtk)
             lmain.after(10, show_frame)
 
-        self.Frame1 = tk.Frame(top)
-        self.Frame1.configure(relief='groove')
-        self.Frame1.configure(borderwidth="2")
-        self.Frame1.configure(relief="groove")
-        self.Frame1.configure(background="#d9d9d9")
+
         webset()
 
         # ----------------------Forward button-----------------------
@@ -154,56 +133,32 @@ class Toplevel1:
             else:
                 text_for_auto_button = "Auto OFF"
 
-            if suitauto is True:
-                text_for_auto_button = "Auto ON"
-            else:
-                text_for_auto_button = "Auto OFF"
-
             self.auto_button = tk.Button(top)
             self.auto_button.place(relx=0.067, rely=0.667, height=42, width=74)
-
             self.auto_button.configure(command=automode)
-
             self.auto_button.configure(text=text_for_auto_button)
         auto_button()
 
 
 # ----------------------Init GPIO-----------------------
+GPIO.setup(TRIG, GPIO.OUT)
+GPIO.setup(ECHO, GPIO.IN)
+GPIO.setup(TRIG1, GPIO.OUT)
+GPIO.setup(ECHO1, GPIO.IN)
+GPIO.setup(led, GPIO.OUT)
+GPIO.setup(gpio_right, GPIO.OUT)
+GPIO.setup(gpio_back, GPIO.OUT)
+GPIO.setup(gpio_left, GPIO.OUT)
+GPIO.setup(gpio_forward, GPIO.OUT)
 
-
-def gpio_init():
-    GPIO.setup(TRIG, GPIO.OUT)
-    GPIO.setup(ECHO, GPIO.IN)
-    GPIO.setup(TRIG1, GPIO.OUT)
-    GPIO.setup(ECHO1, GPIO.IN)
-    GPIO.setup(led, GPIO.OUT)
-    GPIO.setup(gpio_right, GPIO.OUT)
-    GPIO.setup(gpio_back, GPIO.OUT)
-    GPIO.setup(gpio_left, GPIO.OUT)
-    GPIO.setup(gpio_forward, GPIO.OUT)
-
-
-gpio_init()
-
-
-def show_frame():
-    _, frame = cap.read()
-    frame = cv2.flip(frame, 1)
-    cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-    img = Image.fromarray(cv2image)
-    imgtk = ImageTk.PhotoImage(image=img)
-    lmain.imgtk = imgtk
-    lmain.configure(image=imgtk)
-    lmain.after(10, show_frame)
-
-
-# ----------------------END show webcam function--------------------
 
 def forward(_event=None):
     GPIO.output(gpio_right, 0)
     GPIO.output(gpio_back, 0)
     GPIO.output(gpio_left, 0)
     GPIO.output(gpio_forward, 1)
+    time.sleep(sleeprun)
+    GPIO.output(gpio_forward, 0)
     print("Car forward")
 
 
@@ -212,6 +167,8 @@ def back(_event=None):
     GPIO.output(gpio_back, 1)
     GPIO.output(gpio_left, 0)
     GPIO.output(gpio_forward, 0)
+    time.sleep(sleeprun)
+    GPIO.output(gpio_back, 0)
     print("Car back")
 
 
@@ -220,6 +177,9 @@ def right(_event=None):
     GPIO.output(gpio_back, 0)
     GPIO.output(gpio_left, 0)
     GPIO.output(gpio_forward, 1)
+    time.sleep(sleeprun)
+    GPIO.output(gpio_forward, 0)
+    GPIO.output(gpio_right, 0)
     print("Car right")
 
 
@@ -227,7 +187,10 @@ def left(_event=None):
     GPIO.output(gpio_right, 0)
     GPIO.output(gpio_back, 0)
     GPIO.output(gpio_left, 1)
+    GPIO.output(gpio_forward, 1)
+    time.sleep(sleeprun)
     GPIO.output(gpio_forward, 0)
+    GPIO.output(gpio_left, 0)
     print("Car left")
 
 
@@ -238,7 +201,7 @@ def stop():
     GPIO.output(gpio_left, 0)
     GPIO.output(gpio_forward, 0)
 
-
+# START ------------automodeon -  starts automodeon using Thread ------
 def automode():
     if __name__ == '__main__':
         firstrun=False
@@ -247,19 +210,29 @@ def automode():
         t1 = Thread(target=automodeon)
         t1.setDaemon(True)
         t1.start()
+# END ------------automodeon -  starts automodeon using Thread --------
+
+# ----------------------START show webcam function--------------------
+def show_frame():
+    _, frame = cap.read()
+    frame = cv2.flip(frame, 1)
+    cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+    img = Image.fromarray(cv2image)
+    imgtk = ImageTk.PhotoImage(image=img)
+    lmain.imgtk = imgtk
+    lmain.configure(image=imgtk)
+    lmain.after(10, show_frame)
+# ----------------------END show webcam function--------------------
 
 
-# ----------------------flips True / False -----------------------
+# ----------------------flips True = False -------------------------
 def flip(suitauto):
     return not suitauto
 
 
-# ------Automodeon -  defines how the car drives on auto-----------------------
+# START ------------Automodeon -  defines how the car drives on auto------
 suitauto = True
-
-
 def automodeon():
-
     global suitauto
     suitauto = flip(suitauto)
 
@@ -294,18 +267,17 @@ def automodeon():
                 # ----------------------------- For testing on windows End  ---------------------------
 
                 avgdistance = avgdistance + distance
-                # print("Average distance cm =" + str(avgdistance))
             avgdistance = avgdistance / 5
 
             flag = 0
 
             if avgdistance < 15:  # Check whether the distance is within 15 cm range
                 stop()
-                # time.sleep(1)
-                time.sleep(0.5)
+                time.sleep(1)
+                #time.sleep(0.5)
                 back()
-                # time.sleep(1.5)
-                time.sleep(0.5)
+                time.sleep(1.5)
+                #time.sleep(0.5)
                 try:
                     count = count + 1
                 except NameError:
@@ -319,16 +291,16 @@ def automodeon():
                     left()
 
                     flag = 0
-                    # time.sleep(1.5)
-                    time.sleep(0.5)
+                    time.sleep(1.5)
+                    #time.sleep(0.5)
                     count = count + 1
                     stop()
-                    # time.sleep(1)
-                    time.sleep(0.5)
+                    time.sleep(1)
+                    #time.sleep(0.5)
             else:
                 forward()
                 flag = 0
-
+# END ------------Automodeon -  defines how the car drives on auto------
 
 vp_start_gui()
 GPIO.cleanup()

@@ -30,3 +30,12 @@ def input(mpin):
 
 def cleanup():
     pass
+
+RPI_REVISION = 3
+
+I2C=""
+SPI=""
+HARD_PWM=""
+SERIAL=""
+UNKNOWN=""
+gpio_function=""
