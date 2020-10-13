@@ -116,83 +116,54 @@ class Toplevel1:
         # ----------------------Forward button-----------------------
         self.forward_button = tk.Button(top)
         self.forward_button.place(relx=0.423, rely=0.667, height=42, width=80)
-        self.forward_button.configure(activebackground="#ececec")
-        self.forward_button.configure(activeforeground="#000000")
         self.forward_button.configure(background="#d9d9d9")
         self.forward_button.configure(command=forward)
-        self.forward_button.configure(disabledforeground="#a3a3a3")
-        self.forward_button.configure(foreground="#000000")
-        self.forward_button.configure(highlightbackground="#d9d9d9")
-        self.forward_button.configure(highlightcolor="black")
-        self.forward_button.configure(pady="0")
         self.forward_button.configure(text='''Forward''')
         root.bind('w', forward)
 
         # ----------------------Right button-----------------------
         self.right_button = tk.Button(top)
         self.right_button.place(relx=0.567, rely=0.778, height=42, width=80)
-        self.right_button.configure(activebackground="#ececec")
-        self.right_button.configure(activeforeground="#000000")
-        self.right_button.configure(background="#d9d9d9")
         self.right_button.configure(command=right)
-        self.right_button.configure(disabledforeground="#a3a3a3")
-        self.right_button.configure(foreground="#000000")
-        self.right_button.configure(highlightbackground="#d9d9d9")
-        self.right_button.configure(highlightcolor="black")
-        self.right_button.configure(pady="0")
         self.right_button.configure(text='''Right''')
         root.bind('d', right)
 
         # ----------------------Left button-----------------------
         self.left_button = tk.Button(top)
         self.left_button.place(relx=0.283, rely=0.778, height=42, width=80)
-        self.left_button.configure(activebackground="#ececec")
-        self.left_button.configure(activeforeground="#000000")
-        self.left_button.configure(background="#d9d9d9")
         self.left_button.configure(command=left)
-        self.left_button.configure(disabledforeground="#a3a3a3")
-        self.left_button.configure(foreground="#000000")
-        self.left_button.configure(highlightbackground="#d9d9d9")
-        self.left_button.configure(highlightcolor="black")
-        self.left_button.configure(pady="0")
         self.left_button.configure(text='''Left''')
         root.bind('a', left)
 
         # ----------------------Back button-----------------------
         self.back_button = tk.Button(top)
         self.back_button.place(relx=0.423, rely=0.889, height=42, width=80)
-        self.back_button.configure(activebackground="#ececec")
-        self.back_button.configure(activeforeground="#000000")
-        self.back_button.configure(background="#d9d9d9")
         self.back_button.configure(command=back)
-        self.back_button.configure(disabledforeground="#a3a3a3")
-        self.back_button.configure(foreground="#000000")
-        self.back_button.configure(highlightbackground="#d9d9d9")
-        self.back_button.configure(highlightcolor="black")
-        self.back_button.configure(pady="0")
         self.back_button.configure(text='''Back''')
         root.bind('s', back)
 
         # ----------------------Auto button-----------------------
         global text_for_auto_button
-        text_for_auto_button = ""
+        text_for_auto_button = "Auto"
         global auto_button
+
+
         def auto_button():
             if suitauto is True:
                 text_for_auto_button = "Auto ON"
             else:
                 text_for_auto_button = "Auto OFF"
+
+            if suitauto is True:
+                text_for_auto_button = "Auto ON"
+            else:
+                text_for_auto_button = "Auto OFF"
+
             self.auto_button = tk.Button(top)
             self.auto_button.place(relx=0.067, rely=0.667, height=42, width=74)
-            self.auto_button.configure(activebackground="#ececec")
-            self.auto_button.configure(activeforeground="#000000")
-            self.auto_button.configure(background="#d9d9d9")
+
             self.auto_button.configure(command=automode)
-            self.auto_button.configure(disabledforeground="#a3a3a3")
-            self.auto_button.configure(foreground="#000000")
-            self.auto_button.configure(highlightbackground="#d9d9d9")
-            self.auto_button.configure(highlightcolor="black")
-            self.auto_button.configure(pady="0")
+
             self.auto_button.configure(text=text_for_auto_button)
         auto_button()
 
@@ -270,8 +241,7 @@ def stop():
 
 def automode():
     if __name__ == '__main__':
-#        destroy_toplevel1()
-#        create_toplevel1()
+        firstrun=False
         auto_button()
 
         t1 = Thread(target=automodeon)
