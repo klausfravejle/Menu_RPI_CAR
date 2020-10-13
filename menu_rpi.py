@@ -1,15 +1,17 @@
 #! /usr/bin/env python
-import RPi.GPIO as GPIO
-import random
+import platform
 import time
 import tkinter as tk
 from threading import Thread
+
+import RPi.GPIO as GPIO
 import cv2
 from PIL import Image, ImageTk
-import platform
+
+sleeprun = 0.2
 
 # ------------------------GPIO Mode ----------------------------
-# choose BCM or BOARD
+# setmode = BCM or BOARD
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 # ------------------------GPIO PINS ----------------------------
@@ -24,13 +26,13 @@ gpio_right = 5  # pin 29
 gpio_back = 6  # pin 31
 gpio_left = 13  # pin 33
 gpio_forward = 26  # pin 37
-
-if platform.system()=='Windows':
-    oswin=True
+pwmled = 21
+# Check if running on windows system.
+if platform.system() == 'Windows':
+    oswin = True
 else:
-    oswin=False
-oswin=False
-sleeprun=0.2
+    oswin = False
+
 # Start ------------------------cv2 webcam settings ----------------------------
 width, height = 600, 450
 cap = cv2.VideoCapture(0)
@@ -73,6 +75,11 @@ def destroy_toplevel1():
     w = None
 
 
+def setPwm(newvalue):
+    pwmValue = (newvalue)
+    # pwmled.ChangeDutyCycle(float(newvalue))
+    print(pwmValue)
+
 class Toplvl1:
     def __init__(self, top=None):
         top.title("Raspberry RC auto car")
@@ -109,6 +116,10 @@ class Toplvl1:
         self.right_button.configure(text='''Right''')
         root.bind('d', right)
 
+        self.scale_speed = tk.Scale(top)
+        self.scale_speed.place(relx=0.778, rely=0.778, height=42, width=80)
+        self.scale_speed.configure(command=setPwm, orient=tk.HORIZONTAL)
+
         # ----------------------Left button-----------------------
         self.left_button = tk.Button(top)
         self.left_button.place(relx=0.283, rely=0.778, height=42, width=80)
@@ -139,8 +150,12 @@ class Toplvl1:
             self.auto_button.place(relx=0.067, rely=0.667, height=42, width=74)
             self.auto_button.configure(command=automode)
             self.auto_button.configure(text=text_for_auto_button)
+
         auto_button()
 
+
+global pwmValue
+pwmValue = ""
 
 # ----------------------Init GPIO-----------------------
 GPIO.setup(TRIG, GPIO.OUT)
