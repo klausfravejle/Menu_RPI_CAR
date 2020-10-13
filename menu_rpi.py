@@ -6,7 +6,7 @@ import tkinter as tk
 from threading import Thread
 import cv2
 from PIL import Image, ImageTk
-
+import platform
 
 # ------------------------GPIO Mode ----------------------------
 # choose BCM or BOARD
@@ -25,7 +25,11 @@ gpio_back = 6  # pin 31
 gpio_left = 13  # pin 33
 gpio_forward = 26  # pin 37
 
-
+if platform.system()=='Windows':
+    oswin=True
+else:
+    oswin=False
+oswin=False
 sleeprun=0.2
 # Start ------------------------cv2 webcam settings ----------------------------
 width, height = 600, 450
@@ -33,9 +37,7 @@ cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
-
 # End --------------------------cv2 webcam settings ----------------------------
-
 def vp_start_gui():
 
     global val, w, root
@@ -250,22 +252,17 @@ def automodeon():
                 time.sleep(0.00001)  # Delay of 0.00001 seconds
                 GPIO.output(TRIG, False)  # Set TRIG as LOW
 
-                # while GPIO.input(ECHO) == 0:  # Check whether the ECHO is LOW
-                #    GPIO.output(led, False)
                 pulse_start = time.time()
-
-                # while GPIO.input(ECHO) == 1:  # Check whether the ECHO is HIGH
-                #    GPIO.output(led, False)
                 pulse_end = time.time()
+                while oswin is True and GPIO.input(ECHO) == 0:  # Check whether the ECHO is LOW and os is win
+                    GPIO.output(led, False)
+                    pulse_start = time.time()
+
+                while oswin is True and GPIO.input(ECHO) == 1:  # Check whether the ECHO is HIGH and os is win
+                    GPIO.output(led, False)
+                    pulse_end = time.time()
                 pulse_duration = pulse_end - pulse_start  # time to get back the pulse to sensor
-
                 distance = pulse_duration * 17150  # Multiply pulse duration by 17150 (34300/2) to get distance
-
-                # ----------------------------- For testing on windows Start ---------------------------
-                distance = random.randint(1, 32)
-                distance = round(distance, 2)  # Round to two decimal points
-                # ----------------------------- For testing on windows End  ---------------------------
-
                 avgdistance = avgdistance + distance
             avgdistance = avgdistance / 5
 
@@ -274,10 +271,8 @@ def automodeon():
             if avgdistance < 15:  # Check whether the distance is within 15 cm range
                 stop()
                 time.sleep(1)
-                #time.sleep(0.5)
                 back()
                 time.sleep(1.5)
-                #time.sleep(0.5)
                 try:
                     count = count + 1
                 except NameError:
@@ -292,11 +287,9 @@ def automodeon():
 
                     flag = 0
                     time.sleep(1.5)
-                    #time.sleep(0.5)
                     count = count + 1
                     stop()
                     time.sleep(1)
-                    #time.sleep(0.5)
             else:
                 forward()
                 flag = 0
