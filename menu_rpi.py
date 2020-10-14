@@ -105,6 +105,7 @@ class Toplvl1:
             pwmValue = (newvalue)
             var.set("Speed  = " + newvalue)
 
+        root.iconbitmap('icon.ico')
         global var
         var = tk.StringVar()
         webset()
@@ -243,7 +244,7 @@ def automode():
         t1 = Thread(target=automodeon)
         t1.setDaemon(True)
         t1.start()
-# END ------------automodeon -  starts automodeon using Thread --------
+
 
 # ----------------------START show webcam function--------------------
 def show_frame():
@@ -255,7 +256,6 @@ def show_frame():
     lmain.imgtk = imgtk
     lmain.configure(image=imgtk)
     lmain.after(10, show_frame)
-# ----------------------END show webcam function--------------------
 
 
 # ----------------------flips True = False -------------------------
