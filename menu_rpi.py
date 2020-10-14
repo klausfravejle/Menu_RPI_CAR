@@ -4,12 +4,19 @@ import time
 import tkinter as tk
 from threading import Thread
 
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 import cv2
 from PIL import Image, ImageTk
 
-sleeprun = 0.2
+import GPIO_TEST as GPIO
 
+global PwmValue
+import random
+
+PwmValue = 50
+sleeprun = 0.2
+# pwncmd="GPIO.PWM"
+pwncmd = "GPIO.OUTPUT"
 # ------------------------GPIO Mode ----------------------------
 # setmode = BCM or BOARD
 GPIO.setmode(GPIO.BCM)
@@ -25,7 +32,7 @@ led = 18  # pin 12
 gpio_right = 5  # pin 29
 gpio_back = 6  # pin 31
 gpio_left = 13  # pin 33
-gpio_forward = 26  # pin 37
+gpio_forward = int(26)  # pin 37
 pwmled = 21
 # Check if running on windows system.
 if platform.system() == 'Windows':
@@ -58,8 +65,6 @@ def init(top, gui, *args, **kwargs):
     root = top
 
 def create_toplevel1(rt, *args, **kwargs):
-    # Starting point when module is imported by another module.
-    # Correct form of call: 'create_toplevel1(root, *args, **kwargs)'
     global w, w_win, root
     # rt = root
     root = rt
@@ -75,10 +80,6 @@ def destroy_toplevel1():
     w = None
 
 
-def setPwm(newvalue):
-    pwmValue = (newvalue)
-    # pwmled.ChangeDutyCycle(float(newvalue))
-    print(pwmValue)
 
 class Toplvl1:
     def __init__(self, top=None):
@@ -98,8 +99,22 @@ class Toplvl1:
             lmain.configure(image=imgtk)
             lmain.after(10, show_frame)
 
+        def setPwm(newvalue):
+            global pwmValue
+            newValue = int(newvalue)
+            pwmValue = (newvalue)
+            var.set("Speed  = " + newvalue)
 
+        global var
+        var = tk.StringVar()
         webset()
+        # ----------------------LABEL-------------------------------
+
+        global label
+        self.label = tk.Label(root)
+        # self.label.pack()
+        self.label.place(relx=0, rely=0.12, height=25, width=642)
+        self.label.configure(textvariable=var)
 
         # ----------------------Forward button-----------------------
         self.forward_button = tk.Button(top)
@@ -116,9 +131,11 @@ class Toplvl1:
         self.right_button.configure(text='''Right''')
         root.bind('d', right)
 
+        # ----------------------Scale slider-----------------------
         self.scale_speed = tk.Scale(top)
-        self.scale_speed.place(relx=0.778, rely=0.778, height=42, width=80)
-        self.scale_speed.configure(command=setPwm, orient=tk.HORIZONTAL)
+        self.scale_speed.set(80)
+        self.scale_speed.place(relx=0, rely=0, height=58, width=645)
+        self.scale_speed.configure(command=setPwm, orient=tk.HORIZONTAL, label="Speed control")
 
         # ----------------------Left button-----------------------
         self.left_button = tk.Button(top)
@@ -143,11 +160,12 @@ class Toplvl1:
         def auto_button():
             if suitauto is True:
                 text_for_auto_button = "Auto ON"
+                top.title = "Auto mode on!!!"
             else:
                 text_for_auto_button = "Auto OFF"
 
             self.auto_button = tk.Button(top)
-            self.auto_button.place(relx=0.067, rely=0.667, height=42, width=74)
+            self.auto_button.place(relx=0.067, rely=0.8, height=42, width=74)
             self.auto_button.configure(command=automode)
             self.auto_button.configure(text=text_for_auto_button)
 
@@ -173,20 +191,20 @@ def forward(_event=None):
     GPIO.output(gpio_right, 0)
     GPIO.output(gpio_back, 0)
     GPIO.output(gpio_left, 0)
-    GPIO.output(gpio_forward, 1)
     time.sleep(sleeprun)
-    GPIO.output(gpio_forward, 0)
-    print("Car forward")
+    GPIO.PWM(gpio_back, 0)
+    global pwmvalue
+    var.set("Forward")
 
 
 def back(_event=None):
     GPIO.output(gpio_right, 0)
-    GPIO.output(gpio_back, 1)
+    GPIO.PWM(gpio_back, pwmValue)
     GPIO.output(gpio_left, 0)
     GPIO.output(gpio_forward, 0)
     time.sleep(sleeprun)
-    GPIO.output(gpio_back, 0)
-    print("Car back")
+    GPIO.PWM(gpio_back, 0)
+    var.set("Back")
 
 
 def right(_event=None):
@@ -197,8 +215,7 @@ def right(_event=None):
     time.sleep(sleeprun)
     GPIO.output(gpio_forward, 0)
     GPIO.output(gpio_right, 0)
-    print("Car right")
-
+    var.set("Right")
 
 def left(_event=None):
     GPIO.output(gpio_right, 0)
@@ -208,15 +225,14 @@ def left(_event=None):
     time.sleep(sleeprun)
     GPIO.output(gpio_forward, 0)
     GPIO.output(gpio_left, 0)
-    print("Car left")
-
+    var.set("Left")
 
 def stop():
-    print("Car stop")
     GPIO.output(gpio_right, 0)
     GPIO.output(gpio_back, 0)
     GPIO.output(gpio_left, 0)
     GPIO.output(gpio_forward, 0)
+    var.set("Stop")
 
 # START ------------automodeon -  starts automodeon using Thread ------
 def automode():
@@ -252,11 +268,11 @@ suitauto = True
 def automodeon():
     global suitauto
     suitauto = flip(suitauto)
-
     if suitauto is True:
-        print("Automode disabled!")
+        var.set("Automode disabled!")
+
     else:
-        print("Automode enabled!")
+        var.set("Automode enabled!")
         while suitauto is False:
             avgdistance = 0
             for i in range(5):
@@ -283,6 +299,8 @@ def automodeon():
 
             flag = 0
 
+            if oswin is True:
+                avgdistance = (random.randint(13, 17))
             if avgdistance < 15:  # Check whether the distance is within 15 cm range
                 stop()
                 time.sleep(1)
