@@ -113,9 +113,16 @@ class Toplvl1:
 
         global label
         self.label = tk.Label(root)
-        # self.label.pack()
-        self.label.place(relx=0, rely=0.12, height=25, width=642)
+        # rely=0.12
+        self.label.place(relx=0, rely=0, height=25, width=642)
         self.label.configure(textvariable=var)
+        var.set("Raspberry PI - Self driving - Car")
+
+        # ----------------------Scale slider-----------------------
+        # self.scale_speed = tk.Scale(top)
+        # self.scale_speed.set(80)
+        # self.scale_speed.place(relx=0, rely=0, height=58, width=645)
+        # self.scale_speed.configure(command=setPwm, orient=tk.HORIZONTAL, label="Speed control")
 
         # ----------------------Forward button-----------------------
         self.forward_button = tk.Button(top)
@@ -131,12 +138,6 @@ class Toplvl1:
         self.right_button.configure(command=right)
         self.right_button.configure(text='''Right''')
         root.bind('d', right)
-
-        # ----------------------Scale slider-----------------------
-        self.scale_speed = tk.Scale(top)
-        self.scale_speed.set(80)
-        self.scale_speed.place(relx=0, rely=0, height=58, width=645)
-        self.scale_speed.configure(command=setPwm, orient=tk.HORIZONTAL, label="Speed control")
 
         # ----------------------Left button-----------------------
         self.left_button = tk.Button(top)
@@ -174,7 +175,7 @@ class Toplvl1:
 
 
 global pwmValue
-pwmValue = ""
+pwmValue = 80
 
 # ----------------------Init GPIO-----------------------
 GPIO.setup(TRIG, GPIO.OUT)
@@ -192,19 +193,20 @@ def forward(_event=None):
     GPIO.output(gpio_right, 0)
     GPIO.output(gpio_back, 0)
     GPIO.output(gpio_left, 0)
+    GPIO.output(gpio_forward, 1)
     time.sleep(sleeprun)
-    GPIO.PWM(gpio_back, 0)
-    global pwmvalue
+    GPIO.output(gpio_forward, 0)
     var.set("Forward")
 
 
 def back(_event=None):
     GPIO.output(gpio_right, 0)
-    GPIO.PWM(gpio_back, pwmValue)
+    # GPIO.PWM(gpio_back, pwmValue)
+    GPIO.output(gpio_back, 1)
     GPIO.output(gpio_left, 0)
     GPIO.output(gpio_forward, 0)
     time.sleep(sleeprun)
-    GPIO.PWM(gpio_back, 0)
+    GPIO.output(gpio_back, 0)
     var.set("Back")
 
 
