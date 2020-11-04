@@ -1,55 +1,103 @@
 #! /usr/bin/env python
+# https://www.bluetin.io/sensors/python-library-ultrasonic-hc-sr04/
+#  ------------------------Imports ----------------------------
 import platform
+import random
 import time
 import tkinter as tk
+from configparser import ConfigParser
 from threading import Thread
 
-# import RPi.GPIO as GPIO
 import cv2
 from PIL import Image, ImageTk
 
-import GPIO_TEST as GPIO
+# ------------------------Set ----------------------------
+pwmvalue = 40
+webcam_exists = True
+is_on_auto = True
+dist = 50
+debug = False
+spnum = int(0)
 
-global PwmValue
-import random
 
-PwmValue = 50
-sleeprun = 0.2
-# pwncmd="GPIO.PWM"
-pwncmd = "GPIO.OUTPUT"
-# ------------------------GPIO Mode ----------------------------
-# setmode = BCM or BOARD
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-# ------------------------GPIO PINS ----------------------------
-# BCM / BOARD Setup pins
-# https://www.google.com/url?sa=i&url=https%3A%2F%2Fdocs.microsoft.com%2Fen-us%2Fwindows%2Fiot-core%2Flearn-about-hardware%2Fpinmappings%2Fpinmappingsrpi&psig=AOvVaw1jc-PY9cHE5bM75SeY_a4N&ust=1602577275042000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOjYitzPruwCFQAAAAAdAAAAABAJ
-TRIG = 4  # pin 7
-ECHO = 17  # pin 11
-TRIG1 = 27  # pin 13
-ECHO1 = 22  # pin 15
-led = 18  # pin 12
-gpio_right = 5  # pin 29
-gpio_back = 6  # pin 31
-gpio_left = 13  # pin 33
-gpio_forward = int(26)  # pin 37
-pwmled = 21
-# Check if running on windows system.
+# ------------------------Simple print ------------------------
+def sp(pp):
+    if debug is True:
+        global spnum
+        spnum = int(spnum) + 1
+        print(pp)
+        print(". . . . . . . . . . . . .")
+    else:
+        pass
+
+
+# ------------------------Read config.ini file ----------------------------
+config_object = ConfigParser()
+config_object.read("config.ini")
+PINS = config_object["PINS"]
+GPIO_SETTINGS = config_object["GPIO_SETTINGS"]
+OPENCV = config_object["OPENCV"]
+MISC = config_object["MISC"]
+PINON_OFF = config_object["PINON_OFF"]
+DUTY = config_object["DUTY"]
+
+trig = (format(PINS["trig"]))
+trig1 = (format(PINS["trig1"]))
+echo = (format(PINS["echo"]))
+echo1 = (format(PINS["echo1"]))
+led = (format(PINS["led"]))
+gpio_side = (format(PINS["gpio_side"]))
+gpio_forward = (format(PINS["gpio_forward"]))
+gpio_back = (format(PINS["gpio_back"]))
+setm = (format(GPIO_SETTINGS["setm"]))
+
+width = int(format(OPENCV["width"]))
+height = int(format(OPENCV["height"]))
+sleeprun = float(format(MISC["sleep"]))
+duty_cycle_right = float(format(DUTY["duty_cycle_right"]))
+duty_cycle_left = float(format(DUTY["duty_cycle_left"]))
+duty_cycle_center = float(duty_cycle_left) + (float(duty_cycle_right) - float(duty_cycle_left)) / 2
+
+# ------------------------GPIO Mode/warnings ----------------------------
 if platform.system() == 'Windows':
     oswin = True
 else:
     oswin = False
 
-# Start ------------------------cv2 webcam settings ----------------------------
-width, height = 600, 450
+if oswin is True:
+    sp("Windows system")
+    import GPIO_TEST as GPIO
+else:
+    # setmode = BCM or BOARD
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
+    import RPi.GPIO as GPIO
+
+    sp("Linux system")
+
+# ------------------------cv2 webcam settings ----------------------------
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
-# End --------------------------cv2 webcam settings ----------------------------
-def vp_start_gui():
 
-    global val, w, root
+def randint1_10():
+    return random.randint(1, 10)
+
+
+def strtofloat(value):
+    try:
+        float(value)
+        return float(value)
+    except ValueError:
+        return "Could not convert to float!!"
+
+
+# --------------------------tkinter - Make GUI  ----------------------------
+
+
+def vp_start_gui():
+    global w, root
     root = tk.Tk()
     global top
     top = Toplvl1(root)
@@ -58,33 +106,27 @@ def vp_start_gui():
     w = None
 
 
-def init(top, gui, *args, **kwargs):
+def init(top, gui):
     global w, top_level, root
     w = gui
     top_level = top
     root = top
 
+
 def create_toplevel1(rt, *args, **kwargs):
     global w, w_win, root
-    # rt = root
+    rt = root
     root = rt
     w = tk.Toplevel(root)
     top = Toplvl1(w)
-    init(w, top, *args, **kwargs)
-    return (w, top)
-
-
-def destroy_toplevel1():
-    global w
-    w.destroy()
-    w = None
-
+    # init(w, top, *args, **kwargs)
+    init(w, top)
+    return w, top
 
 
 class Toplvl1:
     def __init__(self, top=None):
         top.title("Raspberry RC auto car")
-
 
         def webset():
             global lmain
@@ -99,30 +141,59 @@ class Toplvl1:
             lmain.configure(image=imgtk)
             lmain.after(10, show_frame)
 
-        def setPwm(newvalue):
-            global pwmValue
-            newValue = int(newvalue)
-            pwmValue = (newvalue)
-            var.set("Speed  = " + newvalue)
+        def set_pwm(newvalue):
+            global pwmvalue
+            pwmvalue = newvalue
+            var.set("Speed  = " + str(newvalue))
 
-        root.iconbitmap('icon.ico')
+            sp("Speed  = " + str(newvalue))
+
+        def leftKey(left):
+            global pwmvalue
+            if int(pwmvalue) > 20:
+                pwmvalue = int(pwmvalue) - 10
+                self.scale_speed.set(pwmvalue)
+                var.set("Speed  = " + str(pwmvalue))
+
+        def rightKey(right):
+            global pwmvalue
+            if int(pwmvalue) < 100:
+                pwmvalue = int(pwmvalue) + 10
+                self.scale_speed.set(pwmvalue)
+                var.set("Speed  = " + str(pwmvalue))
+
+        def stopKey(stopKey):
+            stop()
+            sp("STOP - User input!")
+
+        if oswin is True:
+            root.iconbitmap('icon.ico')
+            pass
+        else:
+            pass
         global var
         var = tk.StringVar()
-        webset()
-        # ----------------------LABEL-------------------------------
+        if webcam_exists is False:
+            pass
+        else:
+            webset()
 
         global label
         self.label = tk.Label(root)
-        # rely=0.12
-        self.label.place(relx=0, rely=0, height=25, width=642)
+        # IF SCALING IS ENABLED USE THIS = rely=0.12
+        self.label.place(relx=0, rely=0.12, height=25, width=642)
         self.label.configure(textvariable=var)
         var.set("Raspberry PI - Self driving - Car")
 
         # ----------------------Scale slider-----------------------
-        # self.scale_speed = tk.Scale(top)
-        # self.scale_speed.set(80)
-        # self.scale_speed.place(relx=0, rely=0, height=58, width=645)
-        # self.scale_speed.configure(command=setPwm, orient=tk.HORIZONTAL, label="Speed control")
+        self.scale_speed = tk.Scale(top)
+        self.scale_speed.set(30)
+        self.scale_speed.place(relx=0, rely=0, height=58, width=645)
+        self.scale_speed.configure(command=set_pwm, orient=tk.HORIZONTAL, label="Speed control", from_=20, to=100)
+        self.scale_speed.configure(resolution=10)
+        top.bind('<Left>', leftKey)
+        top.bind('<Right>', rightKey)
+        top.bind('<Return>', stopKey)
 
         # ----------------------Forward button-----------------------
         self.forward_button = tk.Button(top)
@@ -156,11 +227,11 @@ class Toplvl1:
         # ----------------------Auto button-----------------------
         global text_for_auto_button
         text_for_auto_button = "Auto"
+
         global auto_button
 
-
         def auto_button():
-            if suitauto is True:
+            if is_on_auto is True:
                 text_for_auto_button = "Auto ON"
                 top.title = "Auto mode on!!!"
             else:
@@ -174,75 +245,90 @@ class Toplvl1:
         auto_button()
 
 
-global pwmValue
-pwmValue = 80
-
 # ----------------------Init GPIO-----------------------
-GPIO.setup(TRIG, GPIO.OUT)
-GPIO.setup(ECHO, GPIO.IN)
-GPIO.setup(TRIG1, GPIO.OUT)
-GPIO.setup(ECHO1, GPIO.IN)
-GPIO.setup(led, GPIO.OUT)
-GPIO.setup(gpio_right, GPIO.OUT)
-GPIO.setup(gpio_back, GPIO.OUT)
-GPIO.setup(gpio_left, GPIO.OUT)
-GPIO.setup(gpio_forward, GPIO.OUT)
+sp("Init GPIO")
+GPIO.setup(int(trig), GPIO.OUT)
+GPIO.setup(int(echo), GPIO.IN)
+GPIO.setup(int(trig1), GPIO.OUT)
+GPIO.setup(int(echo1), GPIO.IN)
+GPIO.setup(int(led), GPIO.OUT)
+GPIO.setup(int(gpio_side), GPIO.OUT)
+GPIO.setup(int(gpio_back), GPIO.OUT)
+
+GPIO.setup(int(gpio_forward), GPIO.OUT)
+forward_pwm = GPIO.PWM(int(gpio_forward), 50)
+back_pwm = GPIO.PWM(int(gpio_back), 50)
+turn_pwm = GPIO.PWM(int(gpio_side), 50)
 
 
 def forward(_event=None):
-    GPIO.output(gpio_right, 0)
-    GPIO.output(gpio_back, 0)
-    GPIO.output(gpio_left, 0)
-    GPIO.output(gpio_forward, 1)
-    time.sleep(sleeprun)
-    GPIO.output(gpio_forward, 0)
-    var.set("Forward")
+    global pwmvalue
+    if oswin is True:
+        pass
+    else:
+        turn_pwm.start(7.5)
+        time.sleep(0.2)
+        turn_pwm.start(0)
+        back_pwm.start(0)
+        forward_pwm.start(int(pwmvalue))
+    var.set("Forward - Distance is = " + str(get_distance()) + " cm")
+    sp("Forward")
 
 
 def back(_event=None):
-    GPIO.output(gpio_right, 0)
-    # GPIO.PWM(gpio_back, pwmValue)
-    GPIO.output(gpio_back, 1)
-    GPIO.output(gpio_left, 0)
-    GPIO.output(gpio_forward, 0)
-    time.sleep(sleeprun)
-    GPIO.output(gpio_back, 0)
-    var.set("Back")
+    if oswin is True:
+        pass
+    else:
+        turn_pwm.start(7.5)
+        time.sleep(0.2)
+        forward_pwm.start(0)
+        back_pwm.start(int(pwmvalue))
+    var.set("Back - Distance is = " + str(get_distance()) + " cm")
+    sp("Back")
 
 
 def right(_event=None):
-    GPIO.output(gpio_right, 1)
-    GPIO.output(gpio_back, 0)
-    GPIO.output(gpio_left, 0)
-    GPIO.output(gpio_forward, 1)
-    time.sleep(sleeprun)
-    GPIO.output(gpio_forward, 0)
-    GPIO.output(gpio_right, 0)
-    var.set("Right")
+    if oswin is True:
+        pass
+    else:
+        # duty cycle
+        turn_pwm.start(10)
+        time.sleep(0.2)
+        turn_pwm.start(0)
+
+    var.set("Right - Distance is = " + str(get_distance()) + " cm")
+    sp("Right")
+
 
 def left(_event=None):
-    GPIO.output(gpio_right, 0)
-    GPIO.output(gpio_back, 0)
-    GPIO.output(gpio_left, 1)
-    GPIO.output(gpio_forward, 1)
-    time.sleep(sleeprun)
-    GPIO.output(gpio_forward, 0)
-    GPIO.output(gpio_left, 0)
-    var.set("Left")
+    if oswin is True:
+        pass
+    else:
+
+        turn_pwm.start(5)
+        time.sleep(0.2)
+        turn_pwm.start(0)
+
+    var.set("Left - Distance is = " + str(get_distance()) + " cm")
+    sp("Left")
+
 
 def stop():
-    GPIO.output(gpio_right, 0)
-    GPIO.output(gpio_back, 0)
-    GPIO.output(gpio_left, 0)
-    GPIO.output(gpio_forward, 0)
+    if oswin is True:
+        pass
+
+    else:
+        forward_pwm.start(0)
+        back_pwm.start(0)
+        turn_pwm.start(0)
     var.set("Stop")
+    sp("Stop")
+
 
 # START ------------automodeon -  starts automodeon using Thread ------
 def automode():
     if __name__ == '__main__':
-        firstrun=False
         auto_button()
-
         t1 = Thread(target=automodeon)
         t1.setDaemon(True)
         t1.start()
@@ -257,78 +343,85 @@ def show_frame():
     imgtk = ImageTk.PhotoImage(image=img)
     lmain.imgtk = imgtk
     lmain.configure(image=imgtk)
-    lmain.after(10, show_frame)
+    lmain.after(100, show_frame)
 
 
 # ----------------------flips True = False -------------------------
-def flip(suitauto):
-    return not suitauto
+def flip(is_on_auto):
+    return not is_on_auto
 
 
 # START ------------Automodeon -  defines how the car drives on auto------
-suitauto = True
-def automodeon():
-    global suitauto
-    suitauto = flip(suitauto)
-    if suitauto is True:
-        var.set("Automode disabled!")
+def get_distance():
+    GPIO.output(int(trig), False)
+    time.sleep(0.2)
+    GPIO.output(int(trig), True)
+    time.sleep(0.00001)
+    GPIO.output(int(trig), False)
+    start = time.time()
 
+    pulse_start = 0
+    while time.time() - start < 0.1:
+        if GPIO.input(int(echo)) == True:
+            pulse_start = time.time()
+            break
+        time.sleep(0.0001)
+
+    pulse_end = 0
+    while time.time() - start < 0.1:
+        if GPIO.input(int(echo)) == False:
+            pulse_end = time.time()
+            break
+        time.sleep(0.0001)
+
+    pulse_duration = pulse_end - pulse_start
+    distance = pulse_duration * 17150
+    distance = (random.randint(1, 100))
+
+    sp(round(distance, 2))
+    return round(distance, 2)
+
+
+def automodeon():
+    global is_on_auto
+    is_on_auto = flip(is_on_auto)
+    if is_on_auto is True:
+        var.set("Automode disabled!")
+        sp("Automode disabled!")
     else:
         var.set("Automode enabled!")
-        while suitauto is False:
+        sp("Automode enabled!")
+        while is_on_auto is False:
             avgdistance = 0
-            for i in range(5):
-                GPIO.output(TRIG, False)  # Set TRIG as LOW
-                time.sleep(0.1)  # Delay
 
-                GPIO.output(TRIG, True)  # Set TRIG as HIGH
-                time.sleep(0.00001)  # Delay of 0.00001 seconds
-                GPIO.output(TRIG, False)  # Set TRIG as LOW
+            avgdistance = get_distance()
 
-                pulse_start = time.time()
-                pulse_end = time.time()
-                while oswin is True and GPIO.input(ECHO) == 0:  # Check whether the ECHO is LOW and os is win
-                    GPIO.output(led, False)
-                    pulse_start = time.time()
+            if avgdistance > (dist):
+                sp("more than " + str(dist) + "cm")
+                forward()
 
-                while oswin is True and GPIO.input(ECHO) == 1:  # Check whether the ECHO is HIGH and os is win
-                    GPIO.output(led, False)
-                    pulse_end = time.time()
-                pulse_duration = pulse_end - pulse_start  # time to get back the pulse to sensor
-                distance = pulse_duration * 17150  # Multiply pulse duration by 17150 (34300/2) to get distance
-                avgdistance = avgdistance + distance
-            avgdistance = avgdistance / 5
 
-            flag = 0
+            elif avgdistance < (dist):
 
-            if oswin is True:
-                avgdistance = (random.randint(13, 17))
-            if avgdistance < 15:  # Check whether the distance is within 15 cm range
-                stop()
-                time.sleep(1)
+                sp("less than " + str(dist) + "cm")
+
+                forward_pwm.start(20)
                 back()
                 time.sleep(1.5)
-                try:
-                    count = count + 1
-                except NameError:
-                    count = 0
+                last_left = random.choice([True, False])
 
-                if (count % 3 == 1) & (flag == 0):
+                if last_left is True:
+                    back_pwm.start(20)
                     right()
-                    flag = 1
+                    last_left = False
+                    sp("Right")
 
                 else:
                     left()
+                    last_left = True
+                    sp("Left")
 
-                    flag = 0
-                    time.sleep(1.5)
-                    count = count + 1
-                    stop()
-                    time.sleep(1)
-            else:
-                forward()
-                flag = 0
-# END ------------Automodeon -  defines how the car drives on auto------
 
 vp_start_gui()
+sp("GPIO Cleanup!!")
 GPIO.cleanup()
