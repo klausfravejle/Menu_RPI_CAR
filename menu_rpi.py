@@ -15,7 +15,7 @@ from PIL import Image, ImageTk
 pwmvalue = 40
 webcam_exists = True
 is_on_auto = True
-dist = 50
+dist = 100
 debug = False
 spnum = int(0)
 
@@ -68,10 +68,11 @@ if oswin is True:
     sp("Windows system")
     import GPIO_TEST as GPIO
 else:
+    import RPi.GPIO as GPIO
+
     # setmode = BCM or BOARD
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
-    import RPi.GPIO as GPIO
 
     sp("Linux system")
 
@@ -198,7 +199,6 @@ class Toplvl1:
         # ----------------------Forward button-----------------------
         self.forward_button = tk.Button(top)
         self.forward_button.place(relx=0.423, rely=0.667, height=42, width=80)
-        self.forward_button.configure(background="#d9d9d9")
         self.forward_button.configure(command=forward)
         self.forward_button.configure(text='''Forward''')
         root.bind('w', forward)
@@ -321,7 +321,7 @@ def stop():
         forward_pwm.start(0)
         back_pwm.start(0)
         turn_pwm.start(0)
-    var.set("Stop")
+    var.set("Stop - Distance is = " + str(get_distance()) + " cm")
     sp("Stop")
 
 
@@ -353,8 +353,9 @@ def flip(is_on_auto):
 
 # START ------------Automodeon -  defines how the car drives on auto------
 def get_distance():
+    time.sleep(0.01)
     GPIO.output(int(trig), False)
-    time.sleep(0.2)
+    time.sleep(0.01)
     GPIO.output(int(trig), True)
     time.sleep(0.00001)
     GPIO.output(int(trig), False)
@@ -376,10 +377,30 @@ def get_distance():
 
     pulse_duration = pulse_end - pulse_start
     distance = pulse_duration * 17150
-    distance = (random.randint(1, 100))
+
+    # distance = (random.randint(1, 100))
 
     sp(round(distance, 2))
     return round(distance, 2)
+
+
+def measure_average():
+    # This function takes 3 measurements and
+    # returns the average.
+    distance1 = get_distance()
+    time.sleep(0.01)
+    distance2 = get_distance()
+    time.sleep(0.01)
+    distance3 = get_distance()
+    time.sleep(0.01)
+    distance4 = get_distance()
+    time.sleep(0.01)
+    distance5 = get_distance()
+    time.sleep(0.01)
+    distance6 = get_distance()
+    distance = distance1 + distance2 + distance3 + distance4 + distance5 + distance6
+    distance = distance / 6
+    return distance
 
 
 def automodeon():
@@ -394,7 +415,7 @@ def automodeon():
         while is_on_auto is False:
             avgdistance = 0
 
-            avgdistance = get_distance()
+            avgdistance = measure_average()
 
             if avgdistance > (dist):
                 sp("more than " + str(dist) + "cm")
@@ -402,25 +423,26 @@ def automodeon():
 
 
             elif avgdistance < (dist):
-
+                stop()
                 sp("less than " + str(dist) + "cm")
-
-                forward_pwm.start(20)
-                back()
-                time.sleep(1.5)
                 last_left = random.choice([True, False])
 
                 if last_left is True:
-                    back_pwm.start(20)
                     right()
+                    back_pwm.start(int(pwmvalue))
                     last_left = False
                     sp("Right")
-
+                    time.sleep(0.5)
                 else:
                     left()
+                    back_pwm.start(int(pwmvalue))
                     last_left = True
                     sp("Left")
+                    time.sleep(0.5)
 
+
+# while True:
+#    print("Distance is " + str(int(measure_average())) + " cm")
 
 vp_start_gui()
 sp("GPIO Cleanup!!")
